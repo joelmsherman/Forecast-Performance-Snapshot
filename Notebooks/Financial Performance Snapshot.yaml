@@ -1,0 +1,828 @@
+schemaVersion: 3
+meta:
+  sourceVersionId: 08dcefc9-0b7c-437b-aa8c-07c74a7e8bf1 # DO NOT CHANGE - Hex uses this to match up project versions when reimporting the file
+  description: "An interactive notebook for viewing the actual-to-planned variances among a variety of XYZ financial key performance indicators (KPI).  The purpose is to allow XYZ finance managers in relevant regions and for relevant general ledger items to monitor variances between actuals and budget, and to view altered plans when they become available from financial forecasting staff.  "
+  projectId: 06857f32-ee38-46ce-b830-2793dca8cc9c # DO NOT CHANGE - Unique ID of the project from which this file was generated
+  title: Financial Performance Snapshot
+  timezone: null
+  appTheme: SYS_PREF
+  codeLanguage: PYTHON
+  status:
+    name: Production
+  categories:
+    - name: Public
+  castDecimalsDefault: true
+  logicQueryCacheTimeout: null
+  publishedQueryCacheTimeout: null
+projectAssets:
+  dataConnections: []
+  envVars: []
+  secrets: []
+sharedAssets:
+  secrets: []
+  vcsPackages: []
+  dataConnections: []
+  externalFileIntegrations: []
+cells:
+  - cellType: SQL
+    cellId: 2eb2c801-8486-4f0f-a266-63e7a1ce11a8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Source data
+    config:
+      source: select * from "Outlook.csv";
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: source_data
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig: null
+  - cellType: TEXT
+    cellId: 50b87c4f-de27-45a0-9eef-8e90fe8dc3be # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: "Queue up a list of forecast vintages from source data for the "
+            - code: true
+              text: budget
+            - text: " and "
+            - code: true
+              text: plan
+            - text: " parameters"
+  - cellType: SQL
+    cellId: a91dfb49-b14d-4a2e-a01a-17fc619e105c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Forecast vintages
+    config:
+      source: select Vintage from "Outlook.csv" where vintage <> 'Actuals' group by vintage
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: forecast_vintages
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig: null
+  - cellType: TEXT
+    cellId: 25018c6d-d8a2-4a69-8464-5dfccafc2245 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Background
+        - type: p
+          children:
+            - text: "This interactive notebook allows XYZ finance staff to select a KPI Item, Region, Budget vintage and Plan vintage to view performance statistics over time, and for the current, previous and next fiscal years.  Budget vintages reflect base forecasts, or more specifically, revenue forecasts that set the current fiscal year budget assumptions.  Plan vintages reflect alternative forecasts which can be used to compare with Budget.  New forecasts are produced by XYZ's financial forecasting group on a quarterly basis.   "
+        - type: p
+          children:
+            - text: ""
+        - type: p
+          children:
+            - text: 'To start, select a KPI item, Region, Budget vintage and Plan vintage below.  Then click the "Run" button in the upper right.   '
+  - cellType: INPUT
+    cellId: 1d6a587d-62c1-4ba2-b243-9e713b2c3214 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Item
+    config:
+      inputType: DROPDOWN
+      name: item
+      outputType: DYNAMIC
+      options:
+        valueOptions:
+          dfName: source_data
+          columnName: GLItem
+          variableName: source_data['GLItem']
+      defaultValue: Item 1
+  - cellType: INPUT
+    cellId: da930ebf-dc8b-4472-bd68-0bf3209dad18 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Region
+    config:
+      inputType: DROPDOWN
+      name: region
+      outputType: DYNAMIC
+      options:
+        valueOptions:
+          dfName: source_data
+          columnName: Region
+          variableName: source_data['Region']
+      defaultValue: null
+  - cellType: INPUT
+    cellId: fc953fa6-ee42-4d89-b84a-0252dea7fcab # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Budget
+    config:
+      inputType: DROPDOWN
+      name: budget
+      outputType: DYNAMIC
+      options:
+        valueOptions:
+          dfName: forecast_vintages
+          columnName: Vintage
+          variableName: forecast_vintages['Vintage']
+      defaultValue: Fall 2021
+  - cellType: INPUT
+    cellId: 1ec38ac1-cde7-4a56-83ca-6079db84887b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Plan
+    config:
+      inputType: DROPDOWN
+      name: plan
+      outputType: DYNAMIC
+      options:
+        valueOptions:
+          dfName: forecast_vintages
+          columnName: Vintage
+          variableName: forecast_vintages['Vintage']
+      defaultValue: Spring 2022
+  - cellType: SQL
+    cellId: 4084078e-2a23-4f91-a515-38fab56c6928 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Source filtered
+    config:
+      source: |-
+        SELECT * FROM source_data 
+        WHERE "GLItem" = {{item}} AND "Region" = {{region}} AND Vintage IN ('Actuals', {{budget}}, {{plan}})
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: source_filtered
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig: null
+  - cellType: TEXT
+    cellId: a8013314-5b3d-43dd-883b-39621ebec15d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Performance Over Time
+        - type: paragraph
+          children:
+            - text: "Figure 1 below shows monthly actuals for the selected KPI and region, along with the selected budget and plan values.  "
+  - cellType: CHARTV2
+    cellId: f69204d6-035f-4b4a-b4a2-99b524c28327 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: "Figure 1: Actual trends with budget and planned forecasts"
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: 7d563119-ba12-4ca8-a2bf-c0587a1f2992
+            xAxis:
+              type: string
+              style:
+                ticks: {}
+                labels: {}
+              title: Month
+              timeUnit: yearmonth
+              dataFrameColumn: MonthYr
+            series:
+              - id: 7c8b6132-d022-452d-861c-0d40706a87c5
+                type: line
+                axis:
+                  type: number
+                  style:
+                    ticks: {}
+                    labels: {}
+                  title: Revenues
+                  aggregate: sum
+                  numberFormat:
+                    format: CURRENCY
+                    currency: USD
+                    columnType: NUMBER
+                    numDecimalDigits: 0
+                    abbreviateLargeNumbers: false
+                dataFrameColumns:
+                  - Revenue
+                colorDataFrameColumn: Vintage
+                colorOrder: []
+                color:
+                  type: series
+                  colorsBySeriesValues: {}
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                point: false
+                stroke: solid
+            dataFrame: source_filtered
+        settings:
+          legend:
+            position: bottom-right
+          tooltip: true
+      chartSelection: {}
+      colorMappings:
+        Actuals: "#E7446F"
+        Fall 2021: "#DADADA"
+        Fall 2022: "#1B1718"
+        Spring 2022: "#1B1718"
+        Winter 2022: "#DADADA"
+      resultVariable: selection
+      outputResult: false
+      displayTableConfig: null
+  - cellType: TEXT
+    cellId: ccef8046-4c6d-4c1a-a0f3-4a8809186114 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Fiscal Year Summary
+        - type: p
+          children:
+            - text: " The following summary shows full fiscal year actuals for the selected KPI and region for the previous, current and next fiscal year periods.  Current fiscal year totals are a combination of the actuals for the year to date and the remainder of the year forecasts from either the budget or the plan vintages.  "
+  - cellType: SQL
+    cellId: 205765a7-f1b7-4db8-a799-f395ccd93210 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Relevantperiods
+    config:
+      source: |-
+        WITH DtePoint AS
+        (
+            SELECT MAX(MonthYr) AS LstActual FROM source_data where vintage = 'Actuals'
+        )
+        SELECT
+        LstActual,
+            CASE 
+                WHEN MONTH(DtePoint.LstActual)>=7 THEN CONCAT(YEAR(DtePoint.LstActual), '/', YEAR(DtePoint.LstActual)+1)
+                ELSE CONCAT(YEAR(DtePoint.LstActual)-1, '/', YEAR(DtePoint.LstActual)) 
+            END AS 'CurFY',
+            CASE 
+                WHEN MONTH(DtePoint.LstActual)>=7 THEN CONCAT(YEAR(DtePoint.LstActual)-1, '/', YEAR(DtePoint.LstActual))
+                ELSE CONCAT(YEAR(DtePoint.LstActual)-2, '/', YEAR(DtePoint.LstActual)-1) 
+            END AS 'LstFY',
+            CASE 
+                WHEN MONTH(DtePoint.LstActual)>=7 THEN CONCAT(YEAR(DtePoint.LstActual)+1, '/', YEAR(DtePoint.LstActual)+2)
+                ELSE CONCAT(YEAR(DtePoint.LstActual), '/', YEAR(DtePoint.LstActual)+1) 
+            END AS 'NxtFY'
+        FROM
+        DtePoint
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: RelevantPeriods
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig: null
+  - cellType: CODE
+    cellId: eba995e8-f9f9-4f43-9661-54325452105e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        lastactperiod = RelevantPeriods['LstActual'][0]
+        previousfy = RelevantPeriods['LstFY'][0]
+        currentfy = RelevantPeriods['CurFY'][0]
+        nextfy = RelevantPeriods['NxtFY'][0]
+  - cellType: TEXT
+    cellId: 868ad146-fcd2-4424-929c-0a6bfca1689c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: Last FY actuals...
+  - cellType: SQL
+    cellId: b648f6f1-d32e-459a-b4fb-e108bedb4458 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Lastfyactuals
+    config:
+      source: |-
+        SELECT SUM("Revenue") AS Revenue FROM source_data 
+        WHERE "GLItem" = {{item}} AND "Region" = {{region}} AND Vintage = 'Actuals' AND FiscalYr = {{previousfy}}  
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: LastFYActuals
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig:
+        pageSize: 12
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters: null
+        columnProperties:
+          - originalName: FiscalYr
+            renameTo: null
+            size: 113
+            wrapText: null
+            displayFormat: null
+          - originalName: MonthYr
+            renameTo: null
+            size: 116
+            wrapText: null
+            displayFormat: null
+          - originalName: Station
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: Stream
+            renameTo: null
+            size: 110
+            wrapText: null
+            displayFormat: null
+          - originalName: Tons
+            renameTo: null
+            size: 96
+            wrapText: null
+            displayFormat: null
+          - originalName: Vintage
+            renameTo: null
+            size: 111
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: CODE
+    cellId: 0ca37510-394a-4378-a95c-e296d211a6c1 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: LastFYActuals_value = LastFYActuals['Revenue'][0]
+  - cellType: TEXT
+    cellId: 61fb0d91-0322-424c-95fa-df1c44287582 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: Current FY Budget...
+  - cellType: SQL
+    cellId: c4469026-1d27-4636-8d4e-d39d73c5503e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Currentfybudget
+    config:
+      source: |-
+        SELECT SUM("Revenue") AS Revenue FROM source_data 
+        WHERE "GLItem" = {{item}} AND "Region" = {{region}} AND Vintage = {{budget}} AND FiscalYr = {{currentfy}}  
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: CurrentFYBudget
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig:
+        pageSize: 12
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters: null
+        columnProperties:
+          - originalName: FiscalYr
+            renameTo: null
+            size: 113
+            wrapText: null
+            displayFormat: null
+          - originalName: MonthYr
+            renameTo: null
+            size: 116
+            wrapText: null
+            displayFormat: null
+          - originalName: Station
+            renameTo: null
+            size: 109
+            wrapText: null
+            displayFormat: null
+          - originalName: Stream
+            renameTo: null
+            size: 110
+            wrapText: null
+            displayFormat: null
+          - originalName: Tons
+            renameTo: null
+            size: 96
+            wrapText: null
+            displayFormat: null
+          - originalName: Vintage
+            renameTo: null
+            size: 111
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: CODE
+    cellId: 3b3ace9d-e1ea-45c0-b050-7998bcd40d67 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: CurrentFYBudget_value = CurrentFYBudget['Revenue'][0]
+  - cellType: TEXT
+    cellId: b9401929-a269-4be7-b32c-f9048e0762cb # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: Current FY Plan...
+  - cellType: SQL
+    cellId: 3c04a546-35da-4cf0-800c-152553ab2d50 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Currentfyplan
+    config:
+      source: |-
+        WITH Blended AS
+        (
+            SELECT SUM("Revenue") AS Revenue FROM source_data 
+            WHERE "GLItem" = {{item}} AND "Region" = {{region}} AND Vintage = 'Actuals' AND FiscalYr = {{currentfy}} AND MonthYr <= {{lastactperiod}}     
+            
+            UNION SELECT SUM("Revenue") AS Revenue FROM source_data 
+            WHERE "GLItem" = {{item}} AND "Region" = {{region}} AND Vintage = {{plan}} AND FiscalYr = {{currentfy}} AND MonthYr > {{lastactperiod}}
+        )
+        SELECT SUM(Blended.Revenue) AS Revenue FROM Blended
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: CurrentFYPlan
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig: null
+  - cellType: CODE
+    cellId: f8cbd23f-04cb-465f-9a1b-513d3b62eb0b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: CurrentFYPlan_value = CurrentFYPlan['Revenue'][0]
+  - cellType: TEXT
+    cellId: 58a29a5e-85e3-4f73-8596-c880ba9b4ec7 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: Next FY Plan...
+  - cellType: SQL
+    cellId: e11f9103-94ae-451e-86f4-3b55b8bd1da7 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Nextfyplan
+    config:
+      source: |-
+        SELECT '1' AS Key, SUM(Revenue) AS Revenue FROM source_data 
+        WHERE "GLItem" = {{item}} AND "Region" = {{region}} AND Vintage = {{plan}} AND FiscalYr = {{nextfy}}  
+      dataFrameCell: true
+      dataConnectionId: null
+      resultVariableName: NextFYPlan
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: true
+      tableDisplayConfig: null
+  - cellType: CODE
+    cellId: d1215f93-6278-4e2c-b672-484c0fabc47b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: NextFYPlan_value = NextFYPlan['Revenue'][0]
+  - cellType: TEXT
+    cellId: 69eb197d-4651-4528-8750-09e76f24dfab # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - bold: true
+              text: "Last FY "
+            - id: adba51ca-7ab2-4074-94fa-e5777ae35bef
+              type: hex_reference
+              value: "{{ previousfy }}"
+              children:
+                - text: ""
+            - text: ""
+  - cellType: TEXT
+    cellId: d6681d2e-f7ad-4901-8bb5-35ee499e5d59 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - bold: true
+              text: "Current FY "
+            - id: 2a2b9033-a939-43dd-bffb-8e74fc935f9f
+              type: hex_reference
+              value: "{{ currentfy }}"
+              children:
+                - text: ""
+            - text: ""
+  - cellType: TEXT
+    cellId: 34ad503f-c1ed-4940-8466-541ae3c77c41 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - bold: true
+              text: "Next FY "
+            - id: e0345e68-4c86-4ba4-b39e-0f68267ff730
+              type: hex_reference
+              value: "{{ nextfy }}"
+              children:
+                - text: ""
+            - text: ""
+  - cellType: TEXT
+    cellId: b1955612-bb62-4a35-b0d1-eeb31352b88d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: "Actuals through "
+            - id: 5c9ee668
+              type: hex_reference
+              value: "{{ lastactperiod }}"
+              children:
+                - text: ""
+            - text: ""
+  - cellType: METRIC
+    cellId: af8201c6-97db-4d7c-8d16-3367d1af65ff # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Last FY Actuals
+      valueVariableName: LastFYActuals_value
+      showComparison: false
+      comparisonType: null
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: null
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 0
+        abbreviateLargeNumbers: false
+      valueColumn: null
+      valueRowIndex: null
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: 3909cb20-f061-4ffb-9fab-b5dd56653330 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Current FY Budget ({{budget}})
+      valueVariableName: CurrentFYBudget_value
+      showComparison: true
+      comparisonType: PERCENTAGE
+      comparisonVariableName: LastFYActuals_value
+      comparisonFormat: POSITIVE_NEGATIVE
+      comparisonLabel: YOY % Change
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 0
+        abbreviateLargeNumbers: false
+      valueColumn: null
+      valueRowIndex: null
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: 1e6421d2-23bc-4681-b23f-ca7fa33bf570 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Current FY Plan ({{plan}})
+      valueVariableName: CurrentFYPlan_value
+      showComparison: true
+      comparisonType: PERCENTAGE
+      comparisonVariableName: CurrentFYBudget_value
+      comparisonFormat: POSITIVE_NEGATIVE
+      comparisonLabel: Chg from budget
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 0
+        abbreviateLargeNumbers: false
+      valueColumn: null
+      valueRowIndex: null
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: 95847e23-71a7-4e8b-a25e-1353c1bd4038 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Next FY Plan ({{plan}})
+      valueVariableName: NextFYPlan_value
+      showComparison: false
+      comparisonType: null
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: null
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 0
+        abbreviateLargeNumbers: false
+      valueColumn: null
+      valueRowIndex: null
+      comparisonColumn: null
+      comparisonRowIndex: null
+appLayout:
+  visibleMetadataFields:
+    - NAME
+    - DESCRIPTION
+    - AUTHOR
+    - LAST_EDITED
+    - LAST_RUN
+    - CATEGORIES
+    - STATUS
+    - TABLE_OF_CONTENTS
+  fullWidth: false
+  tabs:
+    - name: Tab 1
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 25018c6d-d8a2-4a69-8464-5dfccafc2245
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 30
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 1d6a587d-62c1-4ba2-b243-9e713b2c3214
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 30
+              end: 60
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: da930ebf-dc8b-4472-bd68-0bf3209dad18
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 60
+              end: 90
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: fc953fa6-ee42-4d89-b84a-0252dea7fcab
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 90
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 1ec38ac1-cde7-4a56-83ca-6079db84887b
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: a8013314-5b3d-43dd-883b-39621ebec15d
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: b1955612-bb62-4a35-b0d1-eeb31352b88d
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: f69204d6-035f-4b4a-b4a2-99b524c28327
+                  sharedFilterId: null
+                  height: 445
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: ccef8046-4c6d-4c1a-a0f3-4a8809186114
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 40
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 69eb197d-4651-4528-8750-09e76f24dfab
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 40
+              end: 80
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: d6681d2e-f7ad-4901-8bb5-35ee499e5d59
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 80
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 34ad503f-c1ed-4940-8466-541ae3c77c41
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 40
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: af8201c6-97db-4d7c-8d16-3367d1af65ff
+                  sharedFilterId: null
+                  height: 275
+                  showLabel: true
+            - start: 40
+              end: 80
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 3909cb20-f061-4ffb-9fab-b5dd56653330
+                  sharedFilterId: null
+                  height: 75
+                  showLabel: true
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 1e6421d2-23bc-4681-b23f-ca7fa33bf570
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 80
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 95847e23-71a7-4e8b-a25e-1353c1bd4038
+                  sharedFilterId: null
+                  height: 275
+                  showLabel: true
+sharedFilters: []
